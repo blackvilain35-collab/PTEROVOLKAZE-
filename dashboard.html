@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riwayat Transaksi - PTEROVOLKAZE</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --bg-white: #ffffff;
+            --bg-gray: #f8fafc;
+            --text-dark: #1e293b;
+            --text-gray: #64748b;
+            --border: #e2e8f0;
+            --card-bg: #ffffff;
+            --header-bg: #ffffff;
+            --shadow: rgba(0,0,0,0.1);
+        }
+
+        [data-theme="dark"] {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --bg-white: #1e293b;
+            --bg-gray: #0f172a;
+            --text-dark: #f1f5f9;
+            --text-gray: #94a3b8;
+            --border: #334155;
+            --card-bg: #1e293b;
+            --header-bg: #0f172a;
+            --shadow: rgba(0,0,0,0.3);
+        }
+
+        [data-color="blue"] { --primary: #2563eb; --primary-dark: #1e40af; }
+        [data-color="red"] { --primary: #dc2626; --primary-dark: #b91c1c; }
+        [data-color="green"] { --primary: #16a34a; --primary-dark: #15803d; }
+        [data-color="purple"] { --primary: #7c3aed; --primary-dark: #6d28d9; }
+        [data-color="orange"] { --primary: #ea580c; --primary-dark: #c2410c; }
+        [data-color="pink"] { --primary: #db2777; --primary-dark: #be185d; }
+        [data-color="teal"] { --primary: #0d9488; --primary-dark: #0f766e; }
+        [data-color="yellow"] { --primary: #ca8a04; --primary-dark: #a16207; }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+
+        body {
+            background: var(--bg-gray);
+            min-height: 100vh;
+            padding-bottom: 70px;
+            padding-top: 70px;
+        }
+
+        .top-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--header-bg);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .header-logo {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .header-brand-text { font-size: 1.2em; font-weight: 700; color: var(--text-dark); }
+        .header-brand-text span { color: var(--primary); }
+
+        .hamburger-btn {
+            background: none;
+            border: none;
+            color: var(--text-dark);
+            font-size: 1.5em;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1001;
+            display: none;
+        }
+
+        .sidebar-overlay.active { display: block; }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 280px;
+            height: 100vh;
+            background: var(--header-bg);
+            border-left: 1px solid var(--border);
+            z-index: 1002;
+            transition: right 0.3s ease;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .sidebar.active { right: 0; }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .sidebar-title { font-size: 1.2em; font-weight: 700; color: var(--text-dark); }
+        .close-sidebar { background: none; border: none; color: var(--text-gray); font-size: 1.5em; cursor: pointer; }
+        .sidebar-menu { list-style: none; }
+        .sidebar-menu li { margin-bottom: 10px; }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            color: var(--text-dark);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .sidebar-menu a:hover { background: var(--bg-gray); color: var(--primary); }
+        .sidebar-menu a.active { background: var(--primary); color: white; }
+        .sidebar-menu i { width: 20px; text-align: center; }
+
+        .theme-toggle {
+            margin-top: 20px;
+            padding: 15px;
+            background: var(--bg-gray);
+            border-radius: 10px;
+        }
+
+        .theme-toggle label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            color: var(--text-dark);
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            background: var(--border);
+            border-radius: 13px;
+            transition: all 0.3s;
+        }
+
+        .toggle-switch::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            top: 3px;
+            left: 3px;
+            transition: all 0.3s;
+        }
+
+        .theme-toggle input { display: none; }
+        .theme-toggle input:checked + .toggle-switch { background: var(--primary); }
+        .theme-toggle input:checked + .toggle-switch::before { transform: translateX(24px); }
+
+        .color-picker {
+            margin-top: 20px;
+            padding: 15px;
+            background: var(--bg-gray);
+            border-radius: 10px;
+        }
+
+        .color-picker-label {
+            color: var(--text-dark);
+            font-weight: 600;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .color-options {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .color-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .color-option:hover { transform: scale(1.2); }
+        .color-option.active { border-color: var(--text-dark); box-shadow: 0 0 10px rgba(0,0,0,0.3); }
+
+        .color-blue { background: #2563eb; }
+        .color-red { background: #dc2626; }
+        .color-green { background: #16a34a; }
+        .color-purple { background: #7c3aed; }
+        .color-orange { background: #ea580c; }
+        .color-pink { background: #db2777; }
+        .color-teal { background: #0d9488; }
+        .color-yellow { background: #ca8a04; }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .page-title {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .page-title h2 { color: var(--text-dark); font-size: 1.3em; margin-bottom: 3px; }
+        .page-title h2 span { color: var(--primary); }
+        .page-title p { color: var(--text-gray); font-size: 0.8em; }
+
+        /* Profile Header Compact */
+        .profile-header {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 12px 15px;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .profile-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 2px solid var(--primary);
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-weight: 700;
+            color: var(--text-dark);
+            font-size: 0.95em;
+        }
+
+        .profile-stats {
+            font-size: 0.75em;
+            color: var(--text-gray);
+            margin-top: 2px;
+        }
+
+        .profile-stats span {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .profile-status {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.7em;
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.online { background: #16a34a; }
+        .status-dot.offline { background: #dc2626; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Transaction List Compact */
+        .transaction-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .transaction-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 12px 15px;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+
+        .transaction-card:hover {
+            box-shadow: 0 3px 10px var(--shadow);
+        }
+
+        .transaction-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            background: rgba(37, 99, 235, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .transaction-icon i {
+            font-size: 16px;
+            color: var(--primary);
+        }
+
+        .transaction-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .transaction-name {
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 0.85em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .transaction-meta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 3px;
+            font-size: 0.7em;
+            color: var(--text-gray);
+            flex-wrap: wrap;
+        }
+
+        .transaction-meta i {
+            font-size: 10px;
+        }
+
+        .transaction-price {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 0.85em;
+            flex-shrink: 0;
+        }
+
+        .btn-login-panel {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.7em;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        .btn-login-panel:hover { background: var(--primary-dark); }
+        .btn-login-panel i { font-size: 10px; }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px 15px;
+            background: var(--card-bg);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .empty-state i { font-size: 30px; color: var(--text-gray); margin-bottom: 10px; }
+        .empty-state h3 { color: var(--text-dark); font-size: 1em; margin-bottom: 3px; }
+        .empty-state p { color: var(--text-gray); font-size: 0.8em; margin-bottom: 10px; }
+
+        .btn-buy {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8em;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-buy i { font-size: 12px; }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--header-bg);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            text-decoration: none;
+            color: var(--text-gray);
+            font-size: 0.75em;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.3s;
+            padding: 5px 15px;
+        }
+
+        .nav-item i { font-size: 20px; }
+        .nav-item.active { color: var(--primary); }
+    </style>
+</head>
+<body>
+    <div class="top-header">
+        <a href="index.html" class="header-brand">
+            <img src="hamzt.png" alt="Logo" class="header-logo" onerror="this.style.display='none'">
+            <span class="header-brand-text">PTERO<span>VOLKAZE</span></span>
+        </a>
+        <button class="hamburger-btn" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <span class="sidebar-title">Menu</span>
+            <button class="close-sidebar" onclick="toggleSidebar()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="paket.html"><i class="fas fa-box"></i> Pilihan Paket</a></li>
+            <li><a href="dashboard.html" class="active"><i class="fas fa-history"></i> Riwayat Transaksi</a></li>
+            <li><a href="about.html"><i class="fas fa-info-circle"></i> Tentang Kami</a></li>
+        </ul>
+        
+        <div class="theme-toggle">
+            <label>
+                <span><i class="fas fa-moon"></i> Dark Mode</span>
+                <input type="checkbox" id="themeToggle" onchange="toggleTheme()">
+                <span class="toggle-switch"></span>
+            </label>
+        </div>
+
+        <div class="color-picker">
+            <div class="color-picker-label">
+                <i class="fas fa-palette"></i> Pilih Warna
+            </div>
+            <div class="color-options">
+                <div class="color-option color-blue active" onclick="changeColor('blue')"></div>
+                <div class="color-option color-red" onclick="changeColor('red')"></div>
+                <div class="color-option color-green" onclick="changeColor('green')"></div>
+                <div class="color-option color-purple" onclick="changeColor('purple')"></div>
+                <div class="color-option color-orange" onclick="changeColor('orange')"></div>
+                <div class="color-option color-pink" onclick="changeColor('pink')"></div>
+                <div class="color-option color-teal" onclick="changeColor('teal')"></div>
+                <div class="color-option color-yellow" onclick="changeColor('yellow')"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="page-title">
+            <h2>PTERO<span>VOLKAZE</span></h2>
+            <p>Riwayat Transaksi</p>
+        </div>
+
+        <!-- Profile Header -->
+        <div class="profile-header" id="profileHeader">
+            <div class="profile-avatar">
+                <img src="volz.png" alt="Profile" onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\'width:100%;height:100%;background:var(--primary);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:18px;\'>P</div>'">
+            </div>
+            <div class="profile-info">
+                <div class="profile-name">Pelanggan PTEROVOLKAZE</div>
+                <div class="profile-stats">
+                    <span id="panelCount">0</span> Panel Dibeli
+                </div>
+            </div>
+            <div class="profile-status">
+                <div class="status-dot online" id="panelStatusDot"></div>
+                <span id="panelStatusText">Online</span>
+            </div>
+        </div>
+
+        <!-- Transaction List -->
+        <div id="transactionList" class="transaction-list"></div>
+    </div>
+
+    <nav class="bottom-nav">
+        <a href="index.html" class="nav-item"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="paket.html" class="nav-item"><i class="fas fa-box"></i><span>Paket</span></a>
+        <a href="dashboard.html" class="nav-item active"><i class="fas fa-history"></i><span>Riwayat</span></a>
+        <a href="about.html" class="nav-item"><i class="fas fa-info-circle"></i><span>Tentang</span></a>
+    </nav>
+
+    <script src="config.js"></script>
+    <script>
+        function initTheme() {
+            const savedTheme = localStorage.getItem('pterovolkaze_theme') || 'light';
+            const savedColor = localStorage.getItem('pterovolkaze_color') || 'blue';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            document.documentElement.setAttribute('data-color', savedColor);
+            const themeToggle = document.getElementById('themeToggle');
+            if (themeToggle) themeToggle.checked = savedTheme === 'dark';
+            updateActiveColor(savedColor);
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('pterovolkaze_theme', newTheme);
+        }
+
+        function changeColor(color) {
+            document.documentElement.setAttribute('data-color', color);
+            localStorage.setItem('pterovolkaze_color', color);
+            updateActiveColor(color);
+        }
+
+        function updateActiveColor(color) {
+            document.querySelectorAll('.color-option').forEach(el => el.classList.remove('active'));
+            const activeColor = document.querySelector(`.color-${color}`);
+            if (activeColor) activeColor.classList.add('active');
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
+        }
+
+        // Cek status panel
+        async function checkPanelStatus() {
+            const statusDot = document.getElementById('panelStatusDot');
+            const statusText = document.getElementById('panelStatusText');
+            
+            try {
+                const response = await fetch(`${CONFIG.PANEL_URL}/api/application/nodes`, {
+                    headers: {
+                        'Authorization': `Bearer ${CONFIG.PANEL_API_KEY}`,
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    statusDot.className = 'status-dot online';
+                    statusText.textContent = 'Online';
+                } else {
+                    throw new Error('Offline');
+                }
+            } catch (error) {
+                statusDot.className = 'status-dot offline';
+                statusText.textContent = 'Offline';
+            }
+        }
+
+        // Update jam real-time
+        function updateClock() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const dateStr = now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            
+            const clockElements = document.querySelectorAll('.transaction-meta .clock-time');
+            clockElements.forEach(el => el.textContent = timeStr);
+            
+            const dateElements = document.querySelectorAll('.transaction-meta .clock-date');
+            dateElements.forEach(el => el.textContent = dateStr);
+        }
+
+        function loadTransactions() {
+            const transactions = JSON.parse(localStorage.getItem('pterovolkaze_transactions') || '[]');
+            const list = document.getElementById('transactionList');
+            const panelCount = document.getElementById('panelCount');
+            
+            panelCount.textContent = transactions.length;
+            
+            if (transactions.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-shopping-cart"></i>
+                        <h3>Belum Ada Riwayat</h3>
+                        <p>Anda belum memiliki transaksi</p>
+                        <a href="paket.html" class="btn-buy">
+                            <i class="fas fa-plus"></i> Beli Paket
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+            
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+            const dateStr = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+            
+            list.innerHTML = transactions.map(trans => `
+                <div class="transaction-card">
+                    <div class="transaction-icon">
+                        <i class="fas fa-server"></i>
+                    </div>
+                    <div class="transaction-details">
+                        <div class="transaction-name">${trans.panelName || trans.packageName}</div>
+                        <div class="transaction-meta">
+                            <span><i class="fas fa-clock"></i> ${timeStr}</span>
+                            <span><i class="fas fa-calendar"></i> ${dateStr}</span>
+                            <span><i class="fas fa-check-circle" style="color: #16a34a;"></i> Aktif</span>
+                        </div>
+                    </div>
+                    <div class="transaction-price">Rp ${trans.price.toLocaleString('id-ID')}</div>
+                    <button class="btn-login-panel" onclick="autoLoginPanel('${trans.panelId}')">
+                        <i class="fas fa-external-link-alt"></i> Panel
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function autoLoginPanel(identifier) {
+            window.open(`${CONFIG.PANEL_URL}/server/${identifier}`, '_blank');
+        }
+
+        initTheme();
+        loadTransactions();
+        checkPanelStatus();
+        updateClock();
+        
+        setInterval(checkPanelStatus, 30000);
+        setInterval(updateClock, 1000);
+    </script>
+</body>
+</html>

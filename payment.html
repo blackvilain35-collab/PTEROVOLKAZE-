@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pembayaran - PTEROVOLKAZE</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- EmailJS Script -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --bg-white: #ffffff;
+            --bg-gray: #f8fafc;
+            --text-dark: #1e293b;
+            --text-gray: #64748b;
+            --border: #e2e8f0;
+            --card-bg: #ffffff;
+            --header-bg: #ffffff;
+            --shadow: rgba(0,0,0,0.1);
+        }
+
+        [data-theme="dark"] {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --bg-white: #1e293b;
+            --bg-gray: #0f172a;
+            --text-dark: #f1f5f9;
+            --text-gray: #94a3b8;
+            --border: #334155;
+            --card-bg: #1e293b;
+            --header-bg: #0f172a;
+            --shadow: rgba(0,0,0,0.3);
+        }
+
+        [data-color="blue"] { --primary: #2563eb; --primary-dark: #1e40af; }
+        [data-color="red"] { --primary: #dc2626; --primary-dark: #b91c1c; }
+        [data-color="green"] { --primary: #16a34a; --primary-dark: #15803d; }
+        [data-color="purple"] { --primary: #7c3aed; --primary-dark: #6d28d9; }
+        [data-color="orange"] { --primary: #ea580c; --primary-dark: #c2410c; }
+        [data-color="pink"] { --primary: #db2777; --primary-dark: #be185d; }
+        [data-color="teal"] { --primary: #0d9488; --primary-dark: #0f766e; }
+        [data-color="yellow"] { --primary: #ca8a04; --primary-dark: #a16207; }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+
+        body {
+            background: var(--bg-gray);
+            min-height: 100vh;
+            padding: 20px;
+            padding-bottom: 90px;
+            padding-top: 80px;
+        }
+
+        .top-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--header-bg);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .header-logo {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .header-brand-text { font-size: 1.2em; font-weight: 700; color: var(--text-dark); }
+        .header-brand-text span { color: var(--primary); }
+
+        .hamburger-btn {
+            background: none;
+            border: none;
+            color: var(--text-dark);
+            font-size: 1.5em;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 20px var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .payment-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .payment-header h1 { color: var(--text-dark); font-size: 1.5em; margin-bottom: 10px; }
+        .payment-header h1 span { color: var(--primary); }
+        .payment-header p { color: var(--text-gray); font-size: 0.9em; }
+
+        .form-group { margin-bottom: 15px; text-align: left; }
+        .form-group label { display: block; margin-bottom: 5px; color: var(--text-dark); font-size: 0.9em; font-weight: 600; }
+        .input-wrapper { position: relative; }
+        .input-wrapper i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-gray); }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 12px 12px 35px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 0.95em;
+            background: var(--card-bg);
+            color: var(--text-dark);
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .payment-info {
+            background: var(--bg-gray);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .detail-row:last-child { border-bottom: none; }
+        .label { color: var(--text-gray); font-size: 0.9em; }
+        .value { font-weight: 600; color: var(--text-dark); font-size: 0.9em; }
+
+        .total {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: var(--primary);
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(37, 99, 235, 0.1);
+            border-radius: 10px;
+        }
+
+        .qr-section {
+            text-align: center;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .qr-section.active { display: block; }
+
+        .qr-code {
+            max-width: 300px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px var(--shadow);
+        }
+
+        .qr-code img { width: 100%; height: auto; }
+
+        .qr-instructions {
+            margin-top: 15px;
+            color: var(--text-gray);
+            font-size: 0.85em;
+            line-height: 1.6;
+        }
+
+        .btn-generate {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-generate:hover { background: var(--primary-dark); transform: translateY(-2px); }
+        .btn-generate:disabled { background: #cbd5e1; cursor: not-allowed; transform: none; }
+
+        .btn-check {
+            background: #16a34a;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s;
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-check:hover { background: #15803d; transform: translateY(-2px); }
+        .btn-check:disabled { background: #cbd5e1; cursor: not-allowed; transform: none; }
+
+        .success {
+            background: #dcfce7;
+            color: #16a34a;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .success i { font-size: 50px; margin-bottom: 15px; }
+
+        .note-info {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.85em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        [data-theme="dark"] .note-info { background: #1e3a5f; color: #93c5fd; }
+    </style>
+</head>
+<body>
+    <div class="top-header">
+        <a href="index.html" class="header-brand">
+            <img src="hamzt.png" alt="Logo" class="header-logo" onerror="this.style.display='none'">
+            <span class="header-brand-text">PTERO<span>VOLKAZE</span></span>
+        </a>
+        <button class="hamburger-btn" onclick="history.back()">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+    </div>
+
+    <div class="container">
+        <div class="payment-header">
+            <h1>PTERO<span>VOLKAZE</span></h1>
+            <p>Selesaikan pembayaran Anda</p>
+        </div>
+
+        <div id="paymentContent"></div>
+    </div>
+
+    <script src="config.js"></script>
+    <script>
+        // Inisialisasi EmailJS
+        (function() {
+            emailjs.init(CONFIG.EMAILJS_PUBLIC_KEY);
+        })();
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const packageId = parseInt(urlParams.get('package'));
+        const selectedPackage = CONFIG.PACKAGES.find(p => p.id === packageId);
+        
+        let currentOrderId = '';
+        let currentReference = '';
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem('pterovolkaze_theme') || 'light';
+            const savedColor = localStorage.getItem('pterovolkaze_color') || 'blue';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            document.documentElement.setAttribute('data-color', savedColor);
+        }
+
+        function getCurrentDate() {
+            const now = new Date();
+            const options = { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' };
+            return now.toLocaleDateString('id-ID', options);
+        }
+
+        function initializePayment() {
+            if (!selectedPackage) {
+                window.location.href = 'paket.html';
+                return;
+            }
+
+            currentOrderId = 'PVZ-' + Date.now();
+            
+            document.getElementById('paymentContent').innerHTML = `
+                <div class="note-info">
+                    <i class="fas fa-info-circle"></i>
+                    Masukkan nama server dan email, lalu klik "Buat QR Code".
+                </div>
+                
+                <div class="form-group">
+                    <label for="serverName">Nama Server</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-server"></i>
+                        <input type="text" id="serverName" placeholder="Contoh: Server Minecraft Saya" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="emailPanel">Email Penerima Data Panel</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="emailPanel" placeholder="Masukkan email untuk terima data panel" required>
+                    </div>
+                </div>
+
+                <div class="payment-info">
+                    <div class="detail-row">
+                        <span class="label">Order ID</span>
+                        <span class="value">${currentOrderId}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Paket</span>
+                        <span class="value">${selectedPackage.name}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">RAM</span>
+                        <span class="value">${selectedPackage.ram}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Disk</span>
+                        <span class="value">${selectedPackage.disk}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">CPU</span>
+                        <span class="value">${selectedPackage.cpu}</span>
+                    </div>
+                </div>
+                <div class="total">
+                    Total: Rp ${selectedPackage.price.toLocaleString('id-ID')}
+                </div>
+                <button class="btn-generate" onclick="generatePayment()">
+                    <i class="fas fa-qrcode"></i> Buat QR Code
+                </button>
+            `;
+        }
+
+        async function generatePayment() {
+            const serverName = document.getElementById('serverName').value;
+            const emailPanel = document.getElementById('emailPanel').value;
+            
+            if (!serverName || !emailPanel) {
+                alert('Mohon isi nama server dan email terlebih dahulu!');
+                return;
+            }
+            
+            if (!isValidEmail(emailPanel)) {
+                alert('Format email tidak valid!');
+                return;
+            }
+            
+            localStorage.setItem('pterovolkaze_server_name', serverName);
+            localStorage.setItem('pterovolkaze_email_panel', emailPanel);
+            
+            const btn = event.target;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Membuat QR Code...';
+
+            try {
+                const response = await fetch(`${CONFIG.PAKASIR_API_URL}/payment/create`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${CONFIG.PAKASIR_API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        order_id: currentOrderId,
+                        amount: selectedPackage.price,
+                        payment_method: 'qris',
+                        customer_name: serverName,
+                        customer_email: emailPanel,
+                        items: [
+                            {
+                                name: selectedPackage.name,
+                                price: selectedPackage.price,
+                                quantity: 1
+                            }
+                        ]
+                    })
+                });
+
+                const data = await response.json();
+                console.log('Pakasir Response:', data);
+
+                if (data.success && data.data) {
+                    currentReference = data.data.order_id || data.data.reference || currentOrderId;
+                    
+                    const qrUrl = data.data.qr_code_url || 
+                                  data.data.qr_url || 
+                                  data.data.qr_string || 
+                                  data.data.checkout_url || 
+                                  data.data.payment_url ||
+                                  data.data.qr_code ||
+                                  (data.data.actions && data.data.actions[0] && data.data.actions[0].url);
+                    
+                    if (!qrUrl) {
+                        alert('QR Code tidak ditemukan. Coba lagi.');
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-qrcode"></i> Buat QR Code';
+                        return;
+                    }
+                    
+                    document.getElementById('paymentContent').innerHTML = `
+                        <div class="payment-info">
+                            <div class="detail-row">
+                                <span class="label">Order ID</span>
+                                <span class="value">${currentOrderId}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="label">Nama Server</span>
+                                <span class="value">${serverName}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="label">Email</span>
+                                <span class="value">${emailPanel}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="label">Total</span>
+                                <span class="value" style="color: var(--primary); font-weight: 700;">Rp ${selectedPackage.price.toLocaleString('id-ID')}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="label">Status</span>
+                                <span class="value" id="paymentStatus" style="color: #d97706;">Menunggu Pembayaran</span>
+                            </div>
+                        </div>
+                        <div class="qr-section active">
+                            <div class="qr-code">
+                                ${qrUrl.startsWith('http') 
+                                    ? `<img src="${qrUrl}" alt="QR Code Pembayaran" onerror="this.onerror=null; this.src='https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrUrl)}';">`
+                                    : `<img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrUrl)}" alt="QR Code Pembayaran">`
+                                }
+                            </div>
+                            <p class="qr-instructions">
+                                <i class="fas fa-info-circle"></i><br>
+                                Scan QR Code di atas menggunakan aplikasi pembayaran.<br>
+                                Setelah membayar, klik tombol "Cek Verifikasi Pembayaran" di bawah.
+                            </p>
+                        </div>
+                        <button class="btn-check" onclick="checkPaymentStatus('${currentReference}')">
+                            <i class="fas fa-refresh"></i> Cek Verifikasi Pembayaran
+                        </button>
+                    `;
+                } else {
+                    alert('Gagal membuat pembayaran: ' + (data.message || 'Unknown error'));
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-qrcode"></i> Buat QR Code';
+                }
+            } catch (error) {
+                console.error('Payment error:', error);
+                alert('Terjadi kesalahan. Silakan coba lagi.');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-qrcode"></i> Buat QR Code';
+            }
+        }
+
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        async function checkPaymentStatus(reference) {
+            const btn = event.target;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memeriksa Pembayaran...';
+            
+            try {
+                const response = await fetch(`${CONFIG.PAKASIR_API_URL}/payment/check/${reference}`, {
+                    headers: {
+                        'Authorization': `Bearer ${CONFIG.PAKASIR_API_KEY}`
+                    }
+                });
+                
+                const data = await response.json();
+                console.log('Check Status Response:', data);
+                
+                const statusElement = document.getElementById('paymentStatus');
+                
+                if (data.success && data.data) {
+                    const status = data.data.status;
+                    
+                    if (status === 'paid' || status === 'success' || status === 'settled') {
+                        if (statusElement) {
+                            statusElement.textContent = 'Pembayaran Berhasil!';
+                            statusElement.style.color = '#16a34a';
+                        }
+                        await processSuccessfulPayment(reference);
+                        return;
+                    } else if (status === 'pending') {
+                        if (statusElement) {
+                            statusElement.textContent = 'Menunggu Pembayaran';
+                            statusElement.style.color = '#d97706';
+                        }
+                        alert('Pembayaran belum terkonfirmasi. Silakan coba lagi setelah membayar.');
+                    } else {
+                        if (statusElement) {
+                            statusElement.textContent = 'Status: ' + status;
+                            statusElement.style.color = '#dc2626';
+                        }
+                        alert('Status pembayaran: ' + status);
+                    }
+                } else {
+                    alert('Belum ada pembayaran terdeteksi. Silakan coba lagi.');
+                }
+                
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-refresh"></i> Cek Verifikasi Pembayaran';
+                
+            } catch (error) {
+                console.error('Check error:', error);
+                alert('Gagal memeriksa status. Silakan coba lagi.');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-refresh"></i> Cek Verifikasi Pembayaran';
+            }
+        }
+
+        async function processSuccessfulPayment(reference) {
+            const serverName = localStorage.getItem('pterovolkaze_server_name');
+            const emailPanel = localStorage.getItem('pterovolkaze_email_panel');
+            const purchaseDate = getCurrentDate();
+            
+            try {
+                const response = await fetch(`${CONFIG.PANEL_URL}/api/application/servers`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${CONFIG.PANEL_API_KEY}`,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: serverName,
+                        user: CONFIG.PANEL_USER_ID,
+                        egg: CONFIG.EGG_ID,
+                        docker_image: CONFIG.DOCKER_IMAGE,
+                        startup: CONFIG.STARTUP_COMMAND,
+                        environment: {
+                            SERVER_JARFILE: 'server.jar',
+                            DL_VERSION: 'latest',
+                            BUILD_NUMBER: 'latest'
+                        },
+                        limits: {
+                            memory: parseInt(selectedPackage.ram) * 1024,
+                            swap: 0,
+                            disk: parseInt(selectedPackage.disk) * 1024,
+                            io: 500,
+                            cpu: parseInt(selectedPackage.cpu)
+                        },
+                        feature_limits: {
+                            databases: 5,
+                            allocations: 1,
+                            backups: 1
+                        },
+                        allocation: {
+                            default: 1
+                        }
+                    })
+                });
+
+                if (response.ok) {
+                    const serverData = await response.json();
+                    const panelId = serverData.attributes.identifier;
+                    const panelName = serverData.attributes.name;
+
+                    // Simpan ke localStorage (riwayat website)
+                    const transactions = JSON.parse(localStorage.getItem('pterovolkaze_transactions') || '[]');
+                    transactions.push({
+                        id: currentOrderId,
+                        reference: reference,
+                        date: purchaseDate,
+                        packageName: selectedPackage.name,
+                        price: selectedPackage.price,
+                        status: 'success',
+                        panelId: panelId,
+                        panelName: panelName,
+                        emailPanel: emailPanel
+                    });
+                    localStorage.setItem('pterovolkaze_transactions', JSON.stringify(transactions));
+
+                    // Kirim email data panel ke PEMBELI via EmailJS
+                    await sendEmailPanel(panelId, panelName, emailPanel, serverName, purchaseDate);
+
+                    document.getElementById('paymentContent').innerHTML = `
+                        <div class="success">
+                            <i class="fas fa-check-circle"></i>
+                            <h3>Pembayaran Berhasil!</h3>
+                            <p><strong>Panel ID:</strong> ${panelId}</p>
+                            <p><strong>Nama Panel:</strong> ${panelName}</p>
+                            <p><strong>Tanggal:</strong> ${purchaseDate}</p>
+                            <p><strong>Data dikirim ke:</strong> ${emailPanel}</p>
+                        </div>
+                        <a href="dashboard.html" class="btn-generate" style="text-decoration: none;">
+                            <i class="fas fa-arrow-right"></i> Lihat Riwayat
+                        </a>
+                    `;
+                } else {
+                    throw new Error('Gagal membuat server');
+                }
+            } catch (error) {
+                console.error('Server creation error:', error);
+                alert('Pembayaran berhasil tapi gagal membuat server. Hubungi admin.');
+            }
+        }
+
+        // Fungsi kirim email ke PEMBELI via EmailJS
+        async function sendEmailPanel(panelId, panelName, emailPanel, serverName, purchaseDate) {
+            try {
+                const templateParams = {
+                    to_email: emailPanel,           // Email TUJUAN (pembeli)
+                    from_email: CONFIG.EMAILJS_FROM_EMAIL, // Email kurir (Anda)
+                    server_name: serverName,
+                    panel_id: panelId,
+                    panel_name: panelName,
+                    panel_url: CONFIG.PANEL_URL,
+                    package_name: selectedPackage.name,
+                    ram: selectedPackage.ram,
+                    disk: selectedPackage.disk,
+                    cpu: selectedPackage.cpu,
+                    price: 'Rp ' + selectedPackage.price.toLocaleString('id-ID'),
+                    date: purchaseDate
+                };
+                
+                const result = await emailjs.send(
+                    CONFIG.EMAILJS_SERVICE_ID,
+                    CONFIG.EMAILJS_TEMPLATE_ID,
+                    templateParams
+                );
+                
+                console.log('Email terkirim ke:', emailPanel, result);
+                return true;
+            } catch (error) {
+                console.error('Gagal kirim email:', error);
+                return false;
+            }
+        }
+
+        initTheme();
+        initializePayment();
+    </script>
+</body>
+</html>
